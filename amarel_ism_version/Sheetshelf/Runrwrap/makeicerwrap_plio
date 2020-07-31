@@ -1,0 +1,152 @@
+#-----------------------------------------------------
+# Makefile for compiling and linking sheet-shelf model
+#-----------------------------------------------------
+
+ DEBUG = 0
+#DEBUG = 1
+
+SHELL = /bin/sh
+.SUFFIXES: .F .o
+#.SILENT:
+NULL = 
+
+#-----------------------------------------------------------------------
+
+ifeq ($(HOST),iguana.ems.psu.edu)
+  HOST = iguana
+  NI = /iguana/s1/pollard/Netcdf
+  NA = /iguana/s1/pollard/Netcdf
+  DI = /iguana/s1/pollard/Ebm2d/Codesheetshelf/Code
+ #DI = /iguana/s1/pollard/Ebm2d/Codesheetshelf/Code_031816
+
+ #NI = /iguana/s1/pollard/Netcdf/Gfortran
+ #NA = /iguana/s1/pollard/Netcdf/Gfortran
+endif
+
+ifneq (,$(findstring aci,$(HOST)))
+  HOST = aci
+  NI = /storage/home/dxp21/Netcdf/Lion
+  NA = /storage/home/dxp21/Netcdf/Lion
+  DI = /storage/home/dxp21/Sheetshelf/Code
+
+ #NI = /storage/home/dxp21/Netcdf/Gfortran
+ #NA = /storage/home/dxp21/Netcdf/Gfortran
+endif
+
+ifneq (,$(findstring amarel,$(HOST)))
+  HOST = amarel
+  NI = /home/dp980/Netcdf
+  NA = /home/dp980/Netcdf
+  DI = /home/dp980/Sheetshelf/Code
+
+ #NI = /home/dp980/Netcdf/Gfortran
+ #NA = /home/dp980/Netcdf/Gfortran
+endif
+
+#-----------------------------------------------------------------------
+
+this_makefile := $(lastword $(MAKEFILE_LIST))
+INCICE = *.h $(DI)/*.h $(this_makefile)
+VPATH  = .:$(DI)
+IPATH  = -I. -I$(DI) -I$(NI)
+
+#=========
+
+DFLAGS = -DSTEREO \
+         -DEISANTA -DBEDMAP2 \
+         -DRESOL80 -DDTIMEICE=8. \
+                              \
+         -DRWRAP -DRWRAP_PATH -DRWRAP_PLIO -DRWRAP_TEST \
+         -DRCMMATRIX \
+         -DRCMFILE='"Runmis31_400w_40/LSX_mis31_400w_40.nc"' \
+         -DRCMTEMPSHIFT=2. \
+         -DRCMCO2=1.43 -DRCMWEI=2. -DOCEANDT=2. \
+                              \
+         -DSL_ICE5G \
+         -DFORCEPLEIST \
+         -DBEDROCK -DIFLITH \
+         -DNETCDF \
+         -DSCHOOFGL \
+         -DOCMARTIN \
+         -DLEVITUS \
+         -DFACEMELT \
+         -DCALVING \
+         -DCRHMELREAD \
+         -DIFREST=-1 \
+         -DNYEARSTART=0 \
+         -DNYEAREND=5000 \
+         -DNYEARRES=5000 \
+         -DNYEARHIS=1000 \
+         -DNYEAROUT2D=1000 \
+         -DNYEARTAB=40 \
+         -DNYEARTABBUD=40 \
+         -DCLIFFMELT -DTLAPSEPRECIP=0.
+
+#        -DRESOL160 -DDTIMEICE=8. \
+#        -DRESOL80 -DDTIMEICE=4. \
+
+#        -DPARAMCLIM -DSEARISECLIM \
+
+#        -DADAPTDT
+
+#=========
+
+DFLAGSPA = -DDOSPARSE -DNUMREC
+
+#-----------------------------------------------------------------------
+
+ifeq ($(DEBUG),1)
+  DEBUGC = -g -C -traceback
+ #DEBUGL = -g
+else
+  DEBUGC = -O3
+  DEBUGL = -O3
+endif
+
+#DFLAGS2 = -DIGUANA
+ DFLAGS2 = -DAMAREL
+
+# for ifort:
+ FF  = ifort
+ LL = ifort
+ COMPFLAGS = -r8 -fpe1 -diag-disable 8290 -diag-disable 7713
+ LOADFLAGS = -r8 -fpe1
+
+#for gfortran:
+#FF = gfortran
+#LL = gfortran
+#COMPFLAGS = -fdefault-real-8
+#LOADFLAGS = -fdefault-real-8
+
+ LOADLIBS  = -L$(NA) -lnetcdf
+ SPALIBS =
+ 
+#-----------------------------------------------------------------------
+
+icode   = $(shell cd $(DI) ; ls *.F)
+icodeo := $(addsuffix .o, $(basename $(icode)))
+
+execname = sheetshelf.exe
+
+sheetshelf.exe: $(icodeo) 
+	echo ' '
+	echo '** Linking $(execname)'
+	$(LL) $(DEBUGL) -o $(execname) \
+	    $(icodeo) \
+	    $(LOADFLAGS)           \
+	    $(LOADLIBS) $(SPALIBS) 
+
+*.h:
+	touch -a dummy.h
+
+#-----------------------------------------------------------------------
+
+$(icodeo) : %.o:%.F $(INCICE)
+
+.F.o:
+	echo ' '
+	echo '** Compiling $*.F'
+	$(FF) $(COMPFLAGS) $(DFLAGS) $(DFLAGS2) $(DFLAGSPA) $(DEBUGC) \
+	   $(IPATH) -c $<
+
+#-----------------------------------------------------------------------

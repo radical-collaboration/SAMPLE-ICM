@@ -1,0 +1,11 @@
+ $runparams
+  climfilein  = 'fake'
+  climfileout = 'loveclimout.nc'
+  climfilectl = 'fake'
+  nyearstart = 0
+  nyearend   = 10
+  nyearout2d =  5
+  nyearhis   =  5
+  nyearres   = 10
+  ifrest     = -1
+ $END

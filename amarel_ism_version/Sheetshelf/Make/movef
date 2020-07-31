@@ -1,0 +1,69 @@
+#!/bin/csh -f
+
+#echo $1 | cut -b1-1
+
+set a = $1
+set b = $2
+if ($a != '') set a = _$a
+if ($b != '') set b = _$b
+
+#=================
+
+@ i = 1
+while ($i <= 999)
+  (ls -l fort.$i$a >! /dev/tty) >& /dev/null
+ #(ls -l fort.$i$a >! /dev/stdout) >& /dev/null
+  @ i = $i + 1  
+end
+
+if (-e fort.92${a}.nc) ls -l fort.92${a}.nc 
+if (-e fort.93${a}.nc) ls -l fort.93${a}.nc 
+if (-e x$a) ls -l x$a
+if (-e restart$a) ls -l restart$a
+if (-e crhmelfile$a) ls -l crhmelfile$a
+if (-e nestdrive$a) ls -l nestdrive$a
+
+#=================
+
+
+@ i = 1
+while ($i <= 999)
+  if (-e fort.$i$a) mv fort.$i$a fort.$i$b  
+  @ i = $i + 1  
+end
+
+if (-e fort.92${a}.nc) then
+  if ($a == '') then 
+    cp -p fort.92${a}.nc fort.92${b}.nc   # keep fort.92.nc for ifrest=1
+  else
+    mv fort.92${a}.nc fort.92${b}.nc
+  endif
+endif
+if (-e fort.93${a}.nc) mv fort.93${a}.nc fort.93${b}.nc
+
+if (-e restart$a) mv restart$a restart$b
+if (-e x$a) mv x$a x$b
+if (-e crhmelfile$a) mv crhmelfile$a crhmelfile$b
+if (-e nestdrive$a) mv nestdrive$a nestdrive$b
+
+#=================
+
+echo ''
+
+@ i = 1
+while ($i <= 999)
+  (ls -l fort.$i$b >! /dev/tty) >& /dev/null
+ #(ls -l fort.$i$b >! /dev/stdout) >& /dev/null
+  @ i = $i + 1  
+end
+
+if (-e fort.92${b}.nc) ls -l fort.92${b}.nc 
+if (-e fort.93${b}.nc) ls -l fort.93${b}.nc 
+if (-e x$b) ls -l x$b
+if (-e restart$b) ls -l restart$b
+if (-e crhmelfile$b) ls -l crhmelfile$b
+if (-e nestdrive$b) ls -l nestdrive$b
+
+#=================
+
+exit

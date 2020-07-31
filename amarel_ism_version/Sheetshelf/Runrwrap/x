@@ -1,0 +1,43 @@
+reading existing Bedmap2 data file for thk             
+reading existing Bedmap2 data file for topg            
+reading existing Bedmap2 data file for topgsd          
+initphys: simple topbedeq estimate
+reading crhmel file crhmelfilein
+  input grid type= STEREO
+  nx,ny,dx0,dy0,xoffa,yoffa (input)=   70   70   80000.0   80000.0       0.0       0.0
+  nx,ny,dx0,dy0,xoffa,yoffa (model)=   70   70   80000.0   80000.0       0.0       0.0
+Reading Laskar orbit file
+Reading Lisiecki+Raymo file
+reading existing Netcdf woa09_temperature_annual_1deg.nc data file
+
+================================================================================
+time(yr)=         8   weirun= 2.0000   nuvtot=  1419   iter[a-c]=   2   2   sealev=    0   dtantann=    0.00   dtantjan=    0.00   dtseas  =    0.00   rco2    =   1.430
+d(h), bud, budi, flow, neg, err =   -0.72496763   -0.77969710   -0.75740407   -0.00000322    0.06365188   -0.008919194832470
+ Opening new Netcdf history file
+
+================================================================================
+time(yr)=      1000   weirun= 2.0000   nuvtot=   507   iter[a-c]=   2   2   sealev=    0   dtantann=    0.00   dtantjan=    0.00   dtseas  =    0.00   rco2    =   1.430
+d(h), bud, budi, flow, neg, err =   -0.07379287   -0.41854623   -0.04166998    0.00000000    0.34475335    0.000000000000097
+ Opening existing Netcdf history file
+
+================================================================================
+time(yr)=      2000   weirun= 2.0000   nuvtot=   515   iter[a-c]=   2   2   sealev=    0   dtantann=    0.00   dtantjan=    0.00   dtseas  =    0.00   rco2    =   1.430
+d(h), bud, budi, flow, neg, err =   -0.00645849   -0.35189425    0.02804387    0.00000000    0.34543576    0.000000000000137
+ Opening existing Netcdf history file
+
+================================================================================
+time(yr)=      3000   weirun= 2.0000   nuvtot=   534   iter[a-c]=   2   2   sealev=    0   dtantann=    0.00   dtantjan=    0.00   dtseas  =    0.00   rco2    =   1.430
+d(h), bud, budi, flow, neg, err =   -0.01362989   -0.36631434    0.01266248    0.00000000    0.35268445   -0.000000000000089
+ Opening existing Netcdf history file
+
+================================================================================
+time(yr)=      4000   weirun= 2.0000   nuvtot=   543   iter[a-c]=   2   2   sealev=    0   dtantann=    0.00   dtantjan=    0.00   dtseas  =    0.00   rco2    =   1.430
+d(h), bud, budi, flow, neg, err =   -0.01797812   -0.38035792   -0.00955820    0.00000000    0.36237981   -0.000000000000177
+ Opening existing Netcdf history file
+
+================================================================================
+time(yr)=      5000   weirun= 2.0000   nuvtot=   538   iter[a-c]=   2   2   sealev=    0   dtantann=    0.00   dtantjan=    0.00   dtseas  =    0.00   rco2    =   1.430
+d(h), bud, budi, flow, neg, err =   -0.01499705   -0.35459068    0.00677965    0.00000000    0.33959363   -0.000000000000193
+ Opening existing Netcdf history file
+
+Writing restart file restart_5000p

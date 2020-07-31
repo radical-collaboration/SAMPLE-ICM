@@ -1,0 +1,3 @@
+NI = /usr/global/netcdf/4.0.1/intel11-generic/include
+NA = /usr/global/netcdf/4.0.1/intel11-generic/lib
+

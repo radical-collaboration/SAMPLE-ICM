@@ -1,0 +1,35 @@
+Reading namelist file
+reading existing Bedmap2 data file for thk             
+reading existing Bedmap2 data file for topg            
+reading existing Bedmap2 data file for topgsd          
+initphys: simple topbedeq estimate
+reading crhmel file crhmelfilein
+  input grid type= STEREO
+  nx,ny,dx0,dy0,xoffa,yoffa (input)=  280  280   20000.0   20000.0       0.0       0.0
+  nx,ny,dx0,dy0,xoffa,yoffa (model)=  280  280   20000.0   20000.0       0.0       0.0
+Setting fake Loveclim input for surfelev                
+Setting fake Loveclim input for tair2m                  
+Setting fake Loveclim input for precip                  
+Setting fake Loveclim input for evap                    
+Setting fake Loveclim input for solarflux               
+Setting fake Loveclim input for tocean                  
+
+================================================================================
+time(yr)=         0   weirun= 1.0000   nuvtot= 17197   iter[a-c]=   2   2   sealev=    0   dtantann=    0.00   dtantjan=    0.00   dtseas  =    0.00   rco2    =   1.000
+d(h), bud, budi, flow, neg, err =   -0.02092274   -0.02096913   -0.02032918    0.00000000    0.00004639    0.000000000005668
+ Opening new Netcdf history file
+ Opening existing Netcdf history file
+
+================================================================================
+time(yr)=        10   weirun= 1.0000   nuvtot= 18724   iter[a-c]=   2   2   sealev=    0   dtantann=    0.00   dtantjan=    0.00   dtseas  =    0.00   rco2    =   1.000
+d(h), bud, budi, flow, neg, err =   -0.07923419   -0.11053066   -0.08179290    0.00000000    0.03129647   -0.000000000013397
+ Opening existing Netcdf history file
+
+Writing restart file restart_10p
+reading existing Bedmap2 data file for thk             
+reading existing Bedmap2 data file for topg            
+
+Ice-to-Loveclim model runoff corrections:
+  runoff_liquid, m^3/y (IM,LC), ratio:  0.2211E+13  0.2211E+13    1.0000
+  runoff_frozen, m^3/y (IM,LC), ratio:  0.9374E+12  0.9374E+12    1.0000
+ Opening new output file for Loveclim
