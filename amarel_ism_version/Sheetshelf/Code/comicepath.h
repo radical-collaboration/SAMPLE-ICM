@@ -47,6 +47,9 @@ c    *  '/home/pspec/PSUICE/Data_ice/'
 
 #elif defined (AMAREL)
      *  '/home/dp980/Sheetshelf/Data_ice/'
+
+#elif defined (BRIDGES)
+     *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/'
 #else
      *  '../'
 #endif
@@ -85,6 +88,9 @@ c    *  '/storage/work/dxp21/Data_ice/'
 
 #elif defined (WOJU)
      *  '/home/scrim/dxp21/Bedmap/'
+
+#elif defined (BRIDGES)
+     *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/'
 
 #else
      *  '../Bedmap1/'
@@ -125,6 +131,9 @@ c    *  '/storage/work/dxp21/Data_ice/Driveice/Gcm/'
 #elif defined (WOJU)
      *  '/home/scrim/dxp21/Driveice/Gcm/'
 
+#elif defined (BRIDGES)
+     *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/Gcm/'
+
 #else
      *  '../Driveice/Gcm/'
 #endif
@@ -163,6 +172,9 @@ c    *  '/storage/work/dxp21/Data_ice/Driveice/Obs/'
 
 #elif defined (WOJU)
      *  '/home/scrim/dxp21/Driveice/Obs/'
+ 
+#elif defined (BRIDGES)
+     *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/Driveice/Obs/'
 
 #else
      *  '../Driveice/Obs/'
@@ -203,6 +215,9 @@ c    *  '/storage/work/dxp21/Data_ice/Driveice/Rcm/'
 #elif defined (WOJU)
      *  '/home/scrim/dxp21/Driveice/Rcm/'
 
+#elif defined (BRIDGES)
+     *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/Driveice/Rcm'
+
 #else
      *  '../Driveice/Rcm/'
 #endif
@@ -238,11 +253,14 @@ c    *  '/storage/work/dxp21/Data_ice/Genesis.3.0/Datafiles/'
      *  '/home/deconto/Datafiles/'
 
 #elif defined (MAC)
-     *'/home/ng50/coupled_code/Pollard_Ice_Model/Genesis.3.0/Datafiles/'
+     *  '/home/ng50/coupled_code/Pollard_Ice_Model/Genesis.3.0/Datafiles/'
 
 #elif defined (WOJU)
      *  '/home/scrim/dxp21/Genesis.3.0/Datafiles/'
 
+#elif defined (BRIDGES)
+     *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/
+     *  Genesis.3.0/Datafiles'
 #else
      *  '../Genesis.3.0/Datafiles/'
 #endif

@@ -12,7 +12,7 @@ NULL =
 
 #-----------------------------------------------------------------------
 
-HOST = $(shell uname -n)
+HOST = $(shell hostname -d)
 
 ifeq ($(HOST),iguana.ems.psu.edu)
   HOST = iguana
@@ -22,6 +22,13 @@ ifeq ($(HOST),iguana.ems.psu.edu)
   NA = /iguana/s1/pollard/Netcdf
  #NI = /iguana/s1/pollard/Netcdf/Gfortran
  #NA = /iguana/s1/pollard/Netcdf/Gfortran
+endif
+
+ifeq ($(HOST),pvt.bridges.psc.edu)
+    HOST = bridges
+    NI = $(SCRATCH)/Netcdf
+    NA = $(SCRATCH)/Netcdf
+    DI = $(SCRATCH)/SAMPLE-ICM/amarel_ism_version/Sheetshelf/Code
 endif
 
 #-----------------------------------------------------------------------
@@ -55,7 +62,8 @@ DFLAGS = -DSTEREO \
          -DNYEARTAB=1 \
          -DNYEARTABBUD=1 \
          -DCALVLIQENS -DCLIFFMELTENS -DCLIFFVMAXENS \
-         -DADAPTDT -DDTIMESTAGE=100
+         -DADAPTDT -DDTIMESTAGE=100 \
+         -DPARAMCLIM -DSEARISECLIM
 
  DFLAGSPA = -DDOSPARSE -DNUMREC
 
@@ -63,7 +71,7 @@ DFLAGS = -DSTEREO \
 
 #===========
 
-ifeq ($(HOST),iguana)
+ifeq ($(HOST),bridges)
 
   FF        = ifort
   LL        = ifort
@@ -79,7 +87,7 @@ ifeq ($(HOST),iguana)
     DEBUGL = -O3
   endif
 
-  DFLAGS2 = -DIGUANA
+  DFLAGS2 = -DBRIDGES
 
  # ifort:
   COMPFLAGS = -r8 -fpe1 -diag-disable 8290 -diag-disable 7713
@@ -97,7 +105,7 @@ endif
 
 #-----------------------------------------------------------------------
 
-icode   = $(shell cd $(DI) ; ls *.F)
+icode   = $(shell cd $(DI) && ls *.F)
 icodeo := $(addsuffix .o, $(basename $(icode)))
 
 execname = sheetshelf.exe

@@ -22,11 +22,9 @@ set rootdir = $cwd                     # set "root" directory to current
 # These values of calvliq and cliffvmax are as in the 2016 Nature 
 # paper. You can change the ranges and number of values as you like.
 
-#=============================
-foreach calvliq (0 50 100 150)                         # m per (m/yr)^2
-#=============================
-foreach cliffvmax (0 1 3 5)                            # km/yr
-#=============================
+# vhs edit: Arguments to be passed through command-line (RADICAL)
+set calvliq = $1 # m per (m/yr)^2
+set cliffvmax = $2 # km/year
 
 set calvliqens = "CALVLIQ=$calvliq"
 set cliffvmaxens = "CLIFFVMAX=${cliffvmax}.e3"         # km/yr to m/yr
@@ -53,7 +51,7 @@ mkdir $rundir
 cd $rundir
 
 # copy input files into run directory:
-cp -p $rootdir/restart_inv10d restartin        # modern initial state
+cp -p $rootdir/restart_10p restartin #$rootdir/restart_inv10d restartin        # modern initial state
 cp -p $rootdir/crhmelfile_inv10d crhmelfilein  # basal sliding coef. map
 
 # copy "root" makefile into run directory, edit switches for this run:
@@ -75,12 +73,6 @@ if ($status != 0) exit
 mv sheetshelf.exe sheet_$runlab.exe
 
 # start model running in background:
-sheet_$runlab.exe >&! x &
-
-#==
-end   # cliffvmax
-#==
-end   # calvliq
-#==
+./sheet_$runlab.exe #>&! x &
 
 exit
