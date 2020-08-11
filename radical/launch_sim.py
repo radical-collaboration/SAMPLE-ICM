@@ -7,10 +7,17 @@ import json
 
 
 def add_tasks(crevliq_range, clifvmax_range, stage, executable):
+    """ Function to add tasks to a given Stage within a Radical pipeline
+
+    @param crevliq_range an iterable object containing all possible CREVLIQ values
+    @param clifmax_range an iterable object containing all possible CLIFFMAX values
+    @param stage the Radical Stage to assign given Task objects to
+    @param executable The path to the executable to assign to the tasks
+    """
 
     for c in crevliq_range:
         for v in clifvmax_range:
-            # Create a Task object which creates a file named 'output.txt' of size 1 MB
+            # Create a Task object which launches the icemodel given parameters c and v
             t = Task()
             t.executable = executable
             t.arguments = [c, v]
@@ -20,6 +27,7 @@ def add_tasks(crevliq_range, clifvmax_range, stage, executable):
 
 def main():
 
+    # Get/Set radical configuration attributes
     if os.environ.get("RADICAL_ENTK_VERBOSE") == None:
         os.environ["RADICAL_ENTK_REPORT"] = "True"
 
@@ -28,24 +36,26 @@ def main():
     username = os.environ.get("RMQ_USERNAME")
     password = os.environ.get("RMQ_PASSWORD")
 
+    # Input argument parsing
     parser = argparse.ArgumentParser("Launch icemodel ensemble")
-    parser.add_argument(
-        "executable", type=str, help="location of the model executable"
-    )
+    parser.add_argument("executable", type=str, help="location of the model executable")
     parser.add_argument(
         "clifvmax_step", type=int, help="CLIFVMAX paramater range step value"
     )
     parser.add_argument(
         "crevliq_step", type=int, help="CREVLIQ paramater range step value"
     )
-    parser.add_argument("param_space", type=int, help="The value of the 2d parameter space")
     parser.add_argument(
-        "resource_reqs",
-        type=argparse.FileType("r"),
-        help="Resource requirements json",
+        "param_space",
+        type=int,
+        help="The size of the 2d parameter space (e.g. <param_space>X<param_space))",
+    )
+    parser.add_argument(
+        "resource_reqs", type=argparse.FileType("r"), help="Resource requirements json",
     )
     args = parser.parse_args()
 
+    # Create iterable objects for the range of values possible for CLIFFMAX and CREVLIQ
     clifvmax_range = range(0, args.clifvmax_step * args.param_space, args.clifvmax_step)
     crevliq_range = range(0, args.crevliq_step * args.param_space, args.crevliq_step)
 
@@ -55,7 +65,8 @@ def main():
 
     # Create a Stage object
     s1 = Stage()
-    
+
+    # Add tasks to stage
     add_tasks(crevliq_range, clifvmax_range, s1, args.executable)
 
     # Add Stage to the Pipeline
@@ -69,7 +80,7 @@ def main():
     # Assign the workflow as a set or list of Pipelines to the Application Manager
     appman.workflow = set([p])
 
-    # Create a dictionary to describe our resource request for XSEDE Stampede
+    # Load resource requirements file for running on Bridges
     res_dict = json.load(args.resource_reqs)
 
     # Assign resource request description to the Application Manager
