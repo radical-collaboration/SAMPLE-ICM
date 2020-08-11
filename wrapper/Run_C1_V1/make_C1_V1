@@ -1,0 +1,134 @@
+#-----------------------------------------------------
+# Makefile for compiling and linking sheet-shelf model
+#-----------------------------------------------------
+
+ DEBUG = 0
+#DEBUG = 1
+
+SHELL = /bin/sh
+.SUFFIXES: .F .o
+#.SILENT:
+NULL = 
+
+#-----------------------------------------------------------------------
+
+HOST = $(shell hostname -d)
+
+ifeq ($(HOST),iguana.ems.psu.edu)
+  HOST = iguana
+ #NI = /usr/include
+ #NA = /usr/bin
+  NI = /iguana/s1/pollard/Netcdf
+  NA = /iguana/s1/pollard/Netcdf
+ #NI = /iguana/s1/pollard/Netcdf/Gfortran
+ #NA = /iguana/s1/pollard/Netcdf/Gfortran
+endif
+
+ifeq ($(HOST),pvt.bridges.psc.edu)
+    HOST = bridges
+    NI = $(SCRATCH)/Netcdf
+    NA = $(SCRATCH)/Netcdf
+    DI = $(SCRATCH)/SAMPLE-ICM/amarel_ism_version/Sheetshelf/Code
+endif
+
+#-----------------------------------------------------------------------
+
+ifeq ($(HOST),iguana)
+  DI = /iguana/s1/pollard/Ebm2d/Codesheetshelf/Code
+endif
+
+this_makefile := $(lastword $(MAKEFILE_LIST))
+INCICE = *.h  $(DI)/*.h $(this_makefile)
+VPATH  = .:$(DI):$(DE)
+IPATH  = -I. -I$(DI) -I$(NI)
+
+DFLAGS = -DSTEREO \
+         -DRESOL10 \
+         -DEISANTA -DBEDMAP2 \
+         -DBEDROCK -DIFLITH \
+         -DNETCDF \
+         -DSCHOOFGL \
+         -DOCMARTIN \
+         -DLEVITUS \
+         -DFACEMELT \
+         -DCALVING \
+         -DCRHMELREAD \
+         -DIFREST=0 \
+         -DNYEARSTART=0 \
+         -DNYEAREND=500 \
+         -DNYEARRES=500 \
+         -DNYEARHIS=10  \
+         -DNYEAROUT2D=10 \
+         -DNYEARTAB=1 \
+         -DNYEARTABBUD=1 \
+         -DCALVLIQ=1 -DCLIFFMELT -DCLIFFVMAX=1.e3 \
+         -DADAPTDT -DDTIMESTAGE=100 \
+         -DPARAMCLIM -DSEARISECLIM
+
+ DFLAGSPA = -DDOSPARSE -DNUMREC
+
+#-----------------------------------------------------------------------
+
+#===========
+
+ifeq ($(HOST),bridges)
+
+  FF        = ifort
+  LL        = ifort
+ #FF        = gfortran
+ #LL        = gfortran
+
+  ifeq ($(DEBUG),1)
+   #DEBUGC = -g
+    DEBUGC = -g -C -traceback
+    DEBUGL = -g
+  else
+    DEBUGC = -O3
+    DEBUGL = -O3
+  endif
+
+  DFLAGS2 = -DBRIDGES
+
+ # ifort:
+  COMPFLAGS = -r8 -fpe1 -diag-disable 8290 -diag-disable 7713
+  LOADFLAGS = -r8 -fpe1
+
+ # gfortran:
+ #COMPFLAGS = -fdefault-real-8
+ #LOADFLAGS = -fdefault-real-8
+
+  LOADLIBS  = -L$(NA) -lnetcdf
+  SPALIBS =
+endif
+
+#===========
+
+#-----------------------------------------------------------------------
+
+icode   = $(shell cd $(DI) && ls *.F)
+icodeo := $(addsuffix .o, $(basename $(icode)))
+
+execname = sheetshelf.exe
+
+sheetshelf.exe: $(icodeo) 
+	echo ' '
+	echo '** Linking $(execname)'
+	$(LL) $(DEBUGL) -o $(execname) \
+	    $(icodeo) \
+	    $(LOADFLAGS)           \
+	    $(LOADLIBS) $(SPALIBS) 
+
+*.h:
+	touch -a dummy.h
+
+#-----------------------------------------------------------------------
+
+$(icodeo) : %.o:%.F $(INCICE)
+
+.F.o:
+	echo ' '
+	echo '** Compiling $*.F'
+	$(FF) $(COMPFLAGS) $(DFLAGS) $(DFLAGS2) $(DFLAGSPA) $(DEBUGC) \
+	   $(IPATH) -c $<
+
+#-----------------------------------------------------------------------

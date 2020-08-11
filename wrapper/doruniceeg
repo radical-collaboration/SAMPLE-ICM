@@ -16,7 +16,8 @@
 
 #=======================================================================
 
-set rootdir = $cwd                     # set "root" directory to current
+set rootdir = `dirname $0`            # set "root" directory to current
+set abs_rootdir = `cd $rootdir && pwd`
 
 # Loops for values of the ensemble parameters.   
 # These values of calvliq and cliffvmax are as in the 2016 Nature 
@@ -42,7 +43,7 @@ endif
 set runlab = C${calvliq}_V${cliffvmax}
 
 # start each loop in the root directory: 
-cd $rootdir
+cd $abs_rootdir
 
 # create subdirectory for this run, cd into it:
 set rundir = Run_$runlab
@@ -51,11 +52,11 @@ mkdir $rundir
 cd $rundir
 
 # copy input files into run directory:
-cp -p $rootdir/restart_10p restartin #$rootdir/restart_inv10d restartin        # modern initial state
-cp -p $rootdir/crhmelfile_inv10d crhmelfilein  # basal sliding coef. map
+cp -p $abs_rootdir/restart_10p restartin #$rootdir/restart_inv10d restartin        # modern initial state
+cp -p $abs_rootdir/crhmelfile_inv10d crhmelfilein  # basal sliding coef. map
 
 # copy "root" makefile into run directory, edit switches for this run:
-cp -p $rootdir/makeiceroot maketmp
+cp -p $abs_rootdir/makeiceroot maketmp
 sed \
     -e "s/CALVLIQENS/$calvliqens/g" \
     -e "s/CLIFFMELTENS/$cliffmeltens/g" \
