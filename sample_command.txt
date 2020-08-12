@@ -1,0 +1,1 @@
+python launch_sim.py /pylon5/mc3bggp/vhayot/SAMPLE-ICM/wrapper/doruniceeg 1 15 14 bridges_res.json

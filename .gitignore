@@ -3,3 +3,6 @@
 # Amarel data files
 /amarel_ism_version/Sheetshelf/Data_ice/
 **/*.o
+radical/re.session.js*
+radical/heartbeat*
+radical/radical.entk.task_processor.log
