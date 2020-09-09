@@ -28,21 +28,30 @@ class Sample:
         self.n_samples = n_samples
         self.n_iterations = n_iterations
 
+        # first iteration
+        self.lhs = None
+
     # has stop criteria been met?
     # naive stop condition for now
     def evaluate(self):
-        if self.n_iterations == 0:
+        self.n_iterations -= 1
+        if self.n_iterations < 0:
             return True
         return False
 
     # which ensemble members require further analysis (detect high-gradient areas here)
     # update parameter space?
-    def select(self):
-        pass
+    def select(self, analysis=None):
+        # random selection implementation for now
+        if analysis is None:
+            # return the rows that have not been previously executed
+            if self.lhs is not None:
+                self.param_space = self.param_space[~self.param_space.isin(self.lhs)]
+
+            self.lhs = self.lhsampling()
 
     # generate new set of tasks
     def generate(self):
-        lhs = self.lhsampling()
 
         tasks = []
         for i, row in lhs.iterrows():
@@ -94,6 +103,9 @@ class Sample:
             appman.run()
 
     def lhsampling(self):
+
+        if self.n_samples > len(self.param_space.index):
+            self.n_samples = len(self.param_space.index)
 
         unit_lhs = pd.DataFrame(
             doe.lhs(
