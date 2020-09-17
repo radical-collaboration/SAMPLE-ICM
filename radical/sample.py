@@ -12,7 +12,7 @@ import pyDOE as doe
 
 
 class Sample:
-    def __init__(self, resource_reqs, model, param_space, n_samples, n_iterations):
+    def __init__(self, resource_reqs, model, param_space, init_params, n_samples, n_iterations, output):
         # Get/Set radical configuration attributes
         if os.environ.get("RADICAL_ENTK_VERBOSE") == None:
             os.environ["RADICAL_ENTK_REPORT"] = "True"
@@ -24,12 +24,12 @@ class Sample:
 
         self.resource_dict = json.load(resource_reqs)
         self.model = model
+        self.analysis = analysis
         self.param_space = param_space
         self.n_samples = n_samples
         self.n_iterations = n_iterations
-
-        # first iteration
-        self.lhs = None
+        self.output = output
+        self.lhs = pd.read_csv(init_params)
 
     # has stop criteria been met?
     # naive stop condition for now
@@ -39,32 +39,51 @@ class Sample:
             return True
         return False
 
-    # which ensemble members require further analysis (detect high-gradient areas here)
-    # update parameter space?
-    def select(self, analysis=None):
-        # random selection implementation for now
-        if analysis is None:
-            # return the rows that have not been previously executed
-            if self.lhs is not None:
-                self.param_space = self.param_space[~self.param_space.isin(self.lhs)]
-
-            self.lhs = self.lhsampling()
-
     # generate new set of tasks
-    def generate(self):
+    def generate(self, fldr_name):
 
         tasks = []
         for i, row in lhs.iterrows():
             t = Task()
             t.executable = self.model
-            t.arguments = [int(time()), *row.values.tolist()]
+            t.arguments = [fldr_name, *row.values.tolist()]
 
             tasks.append(t)
 
         return tasks
 
+    # Adds selection task to pipeline
+    def selection(self, iteration, ps_file, select_file):
+
+        tasks = []
+
+        if iteration == 0:
+
+            init_t = Task()
+            init_t.executable = "/bin/bash"
+            init_t.arguments = ["cp", self.param_space, ps_file]
+            tasks.append(init_t)
+
+        t = Task()
+        t.executable = self.analysis
+        t.arguments = [ps_file, self.n_samples, select_file]
+        t.download_output_data = [select_file]
+
+        tasks.append(t)
+
+        return tasks
+
+
     def run(self):
 
+        # Get experiment time to save outputs to specific folder
+        # To remove eventually and find a better solution
+        fldr_name = os.path.join(self.output, int(time()))
+        ps_file = os.path.join(fldr_name, os.path.basename(self.param_space))
+        select_name = "selection.csv"
+        select_file = os.path.join(fldr_name, select_name)
+
+        i = 0
         # check if stop criteria has been met
         # otherwise run model with updated set of parameters
         while not self.evaluate():
@@ -77,13 +96,19 @@ class Sample:
             s1 = Stage()
 
             # generate tasks
-            tasks = self.generate()
+            tasks = self.generate(fldr_name)
 
             # add tasks to stage
             s1.add_tasks(tasks)
 
+            # create selection stage
+            s2 = Stage
+
+            # creat selection task(s)
+            selec_tasks = self.selection(i, ps_file, select_file)
+
             # Add Stage to the Pipeline
-            p.add_stages(s1)
+            p.add_stages([s1, s2])
 
             # Create Application Manager
             appman = AppManager(
@@ -102,37 +127,9 @@ class Sample:
             # Run the Application Manager
             appman.run()
 
-    def lhsampling(self):
+            self.lhs = pd.read_csv(select_name)
 
-        if self.n_samples > len(self.param_space.index):
-            self.n_samples = len(self.param_space.index)
-
-        unit_lhs = pd.DataFrame(
-            doe.lhs(
-                n=len(self.param_space.columns),
-                samples=self.n_samples,
-                criterion="maximin",
-            ),
-            columns=self.param_space.columns,
-        )
-        lhs_idx = pd.DataFrame(index=unit_lhs.index)
-        lhs = pd.DataFrame(index=unit_lhs.index)
-
-        for i in unit_lhs.columns:
-            lhs_idx[i] = (
-                randint(0, len(self.param_space[i].unique()))
-                .ppf(unit_lhs[i])
-                .astype(int)
-            )
-            lhs[i] = lhs_idx[i].apply(lambda x: self.param_space[i].unique()[x])
-
-        return lhs
-
-
-def get_paramspace(params):
-    p = json.load(params)
-    ps = itertools.product(*list(p.values()))
-    return pd.DataFrame(ps, columns=p.keys())
+            i += 1
 
 
 def main():
@@ -140,10 +137,16 @@ def main():
     # Input argument parsing
     parser = argparse.ArgumentParser("Launch icemodel ensemble")
     parser.add_argument("model", type=str, help="location of the model executable")
+    parser.add_argument("analysis", type=str, help="location of selection algorithm executable")
     parser.add_argument(
-        "params",
-        type=argparse.FileType("r"),
-        help="json file containing all possible values of each parameter",
+        "param_space",
+        type=str,
+        help="csv file containing all possible values of each parameter",
+    )
+    parser.add_argument(
+        "init_params",
+        type=str,
+        help="csv file containing the initial parameter values"
     )
     parser.add_argument(
         "resource_reqs", type=argparse.FileType("r"), help="Resource requirements json",
@@ -154,12 +157,13 @@ def main():
     parser.add_argument(
         "n_iterations", type=int, help="maximum number of sampling iterations."
     )
+    parser.add_argument(
+        "output", type=str, help="output data location"
+    )
     args = parser.parse_args()
 
-    param_space = get_paramspace(args.params)
-
-    s = Sample(resources_reqs=args.resource_reqs, model=args.model, param_space=self.param_space,
-            n_samples=self.n_samples, n_iterations=self.n_iterations)
+    s = Sample(resources_reqs=args.resource_reqs, model=args.model, analysis=analysis, param_space=self.param_space,
+            n_samples=self.n_samples, n_iterations=self.n_iterations, output=args.output)
     s.run()
 
 
