@@ -3,6 +3,7 @@
 from radical.entk import Pipeline, Stage, Task, AppManager
 from scipy.stats import randint
 from numpy.random import choice
+from time import time
 import os
 import json
 import argparse
@@ -12,7 +13,7 @@ import pyDOE as doe
 
 
 class Sample:
-    def __init__(self, resource_reqs, model, param_space, init_params, n_samples, n_iterations, output):
+    def __init__(self, resource_reqs, model, analysis, param_space, init_params, n_samples, n_iterations, output):
         # Get/Set radical configuration attributes
         if os.environ.get("RADICAL_ENTK_VERBOSE") == None:
             os.environ["RADICAL_ENTK_REPORT"] = "True"
@@ -29,7 +30,7 @@ class Sample:
         self.n_samples = n_samples
         self.n_iterations = n_iterations
         self.output = output
-        self.lhs = pd.read_csv(init_params)
+        self.select_file = init_params
 
     # has stop criteria been met?
     # naive stop condition for now
@@ -43,31 +44,24 @@ class Sample:
     def generate(self, fldr_name):
 
         tasks = []
-        for i, row in lhs.iterrows():
+        for i in range(self.n_samples):
             t = Task()
             t.executable = self.model
-            t.arguments = [fldr_name, *row.values.tolist()]
+            t.arguments = [fldr_name, i, self.select_file]
 
             tasks.append(t)
 
         return tasks
 
     # Adds selection task to pipeline
-    def selection(self, iteration, ps_file, select_file):
+    def selection(self, ps_file, select_file):
 
         tasks = []
 
-        if iteration == 0:
-
-            init_t = Task()
-            init_t.executable = "/bin/bash"
-            init_t.arguments = ["cp", self.param_space, ps_file]
-            tasks.append(init_t)
-
         t = Task()
+        t.pre_exec = ['/bin/cp {0} {1}'.format(self.param_space, ps_file)]
         t.executable = self.analysis
         t.arguments = [ps_file, self.n_samples, select_file]
-        t.download_output_data = [select_file]
 
         tasks.append(t)
 
@@ -78,7 +72,7 @@ class Sample:
 
         # Get experiment time to save outputs to specific folder
         # To remove eventually and find a better solution
-        fldr_name = os.path.join(self.output, int(time()))
+        fldr_name = os.path.join(self.output, str(int(time())))
         ps_file = os.path.join(fldr_name, os.path.basename(self.param_space))
         select_name = "selection.csv"
         select_file = os.path.join(fldr_name, select_name)
@@ -102,10 +96,11 @@ class Sample:
             s1.add_tasks(tasks)
 
             # create selection stage
-            s2 = Stage
+            s2 = Stage()
 
             # creat selection task(s)
-            selec_tasks = self.selection(i, ps_file, select_file)
+            selec_tasks = self.selection(ps_file, select_file)
+            s2.add_tasks(selec_tasks)
 
             # Add Stage to the Pipeline
             p.add_stages([s1, s2])
@@ -126,8 +121,9 @@ class Sample:
 
             # Run the Application Manager
             appman.run()
-
-            self.lhs = pd.read_csv(select_name)
+        
+            # TODO find a better solution
+            self.select_file = select_file 
 
             i += 1
 
@@ -162,8 +158,8 @@ def main():
     )
     args = parser.parse_args()
 
-    s = Sample(resources_reqs=args.resource_reqs, model=args.model, analysis=analysis, param_space=self.param_space,
-            n_samples=self.n_samples, n_iterations=self.n_iterations, output=args.output)
+    s = Sample(resource_reqs=args.resource_reqs, model=args.model, analysis=args.analysis, param_space=args.param_space,
+            init_params=args.init_params, n_samples=args.n_samples, n_iterations=args.n_iterations, output=args.output)
     s.run()
 
 
