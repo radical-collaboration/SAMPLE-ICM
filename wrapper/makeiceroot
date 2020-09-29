@@ -43,7 +43,7 @@ VPATH  = .:$(DI):$(DE)
 IPATH  = -I. -I$(DI) -I$(NI)
 
 DFLAGS = -DSTEREO \
-         -DRESOL10 \
+         -DRESOL40 \
          -DEISANTA -DBEDMAP2 \
          -DBEDROCK -DIFLITH \
          -DNETCDF \

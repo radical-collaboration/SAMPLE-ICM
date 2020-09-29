@@ -1,7 +1,7 @@
 {
     "resource": "xsede.bridges",
     "walltime": 1600,
-    "cpus": 30,
+    "cpus": 14,
     "project": "mc3bggp",
     "schema": "gsissh"
 }    
