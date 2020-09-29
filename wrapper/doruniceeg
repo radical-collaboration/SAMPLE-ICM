@@ -16,6 +16,7 @@
 
 #=======================================================================
 
+set exec_dir = $1
 set rootdir = `dirname $0`            # set "root" directory to current
 set abs_rootdir = `cd $rootdir && pwd`
 
@@ -24,8 +25,8 @@ set abs_rootdir = `cd $rootdir && pwd`
 # paper. You can change the ranges and number of values as you like.
 
 # vhs edit: Arguments to be passed through command-line (RADICAL)
-set calvliq = $1 # m per (m/yr)^2
-set cliffvmax = $2 # km/year
+set calvliq = $2 # m per (m/yr)^2
+set cliffvmax = $3 # km/year
 
 set calvliqens = "CALVLIQ=$calvliq"
 set cliffvmaxens = "CLIFFVMAX=${cliffvmax}.e3"         # km/yr to m/yr
@@ -44,6 +45,9 @@ set runlab = C${calvliq}_V${cliffvmax}
 
 # start each loop in the root directory: 
 cd $abs_rootdir
+
+# make current execution directory and cd to it
+mkdir -p $exec_dir && cd $exec_dir
 
 # create subdirectory for this run, cd into it:
 set rundir = Run_$runlab

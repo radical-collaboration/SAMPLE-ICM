@@ -1,13 +1,19 @@
+#!/usr/bin/env python
+
 import pandas as pd
 import click
+import pyDOE as doe
+from scipy.stats import randint
 
 @click.command()
-@click.argument('param_space', type=str, required=True)
+@click.argument('ps_csv', type=str, required=True)
 @click.argument('n_samples', type=int, required=True)
 @click.argument('output', type=str, default="lhs.csv")
-def lhsampling(param_space, n_samples, output):
+def lhsampling(ps_csv, n_samples, output):
 
-    param_space = pd.read_csv(param_space)
+    print("lhs sampling")
+
+    param_space = pd.read_csv(ps_csv)
     if n_samples > len(param_space.index):
         n_samples = len(param_space.index)
 
@@ -30,7 +36,11 @@ def lhsampling(param_space, n_samples, output):
         )
         lhs[i] = lhs_idx[i].apply(lambda x: param_space[i].unique()[x])
 
-    param_space.to_csv(output)
+    lhs[["crevliq", "cliffvmax"]].to_csv(output)
+
+    # save updated param_space                                                   
+    updated_ps = param_space[~param_space.isin(lhs)]                             
+    updated_ps.to_csv(ps_csv)
 
 if __name__ == '__main__':
     lhsampling()
