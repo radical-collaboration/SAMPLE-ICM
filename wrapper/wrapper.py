@@ -3,13 +3,13 @@
 import pandas as pd
 import sys
 import subprocess as sp
-
+import os
 
 out_fldr = sys.argv[1]
 row_index = int(sys.argv[2])
 select_file = sys.argv[3]
 
-model = "/pylon5/mc3bggp/vhayot/SAMPLE-ICM/wrapper/doruniceeg"
+model = os.path.join(os.path.dirname(os.path.realpath(__file__)), "doruniceeg")
 
 params = pd.read_csv(sys.argv[3])[["crevliq", "cliffvmax"]].iloc[row_index]
 

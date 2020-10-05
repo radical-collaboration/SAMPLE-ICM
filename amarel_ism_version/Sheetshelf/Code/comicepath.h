@@ -50,6 +50,12 @@ c    *  '/home/pspec/PSUICE/Data_ice/'
 
 #elif defined (BRIDGES)
      *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/'
+     
+#elif defined (COMET)
+     *  '/home/vhayot/' //
+     *  'amarel_ism_version/' //
+     *  'Sheetshelf/Data_ice/'
+     
 #else
      *  '../'
 #endif
@@ -91,6 +97,10 @@ c    *  '/storage/work/dxp21/Data_ice/'
 
 #elif defined (BRIDGES)
      *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/'
+     
+#elif defined (COMET)
+     *  '/oasis/scratch/comet/vhayot/temp_project/SAMPLE-ICM
+     *  /4amarel_ism_version/Sheetshelf/Data_ice/'
 
 #else
      *  '../Bedmap1/'
@@ -134,6 +144,10 @@ c    *  '/storage/work/dxp21/Data_ice/Driveice/Gcm/'
 #elif defined (BRIDGES)
      *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/Gcm/'
 
+#elif defined (COMET)
+     *  '/oasis/scratch/comet/vhayot/temp_project/SAMPLE-ICM
+     *  /3amarel_ism_version/Sheetshelf/Data_ice/Gcm/'
+
 #else
      *  '../Driveice/Gcm/'
 #endif
@@ -176,6 +190,10 @@ c    *  '/storage/work/dxp21/Data_ice/Driveice/Obs/'
 #elif defined (BRIDGES)
      *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/Driveice/Obs/'
 
+#elif defined (COMET)
+     *  '/oasis/scratch/comet/vhayot/temp_project/SAMPLE-ICM
+     *  /1amarel_ism_version/Sheetshelf/Data_ice/Driveice/Obs/'
+
 #else
      *  '../Driveice/Obs/'
 #endif
@@ -215,8 +233,12 @@ c    *  '/storage/work/dxp21/Data_ice/Driveice/Rcm/'
 #elif defined (WOJU)
      *  '/home/scrim/dxp21/Driveice/Rcm/'
 
-#elif defined (BRIDGES)
+#elif defined (BRIDGE)
      *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/Driveice/Rcm'
+
+#elif defined (COMET)
+     *  '/oasis/scratch/comet/vhayot/temp_project/SAMPLE-ICM
+     *  /2amarel_ism_version/Sheetshelf/Data_ice/Driveice/Rcm'
 
 #else
      *  '../Driveice/Rcm/'
@@ -261,6 +283,11 @@ c    *  '/storage/work/dxp21/Data_ice/Genesis.3.0/Datafiles/'
 #elif defined (BRIDGES)
      *  '/pylon5/mc3bggp/vhayot/Sheetshelf/Data_ice/
      *  Genesis.3.0/Datafiles'
+
+#elif defined (COMET)
+     *  '/home/vhayot/amarel_ism_version/Sheetshelf/Data_ice/
+     *  Genesis.3.0/Datafiles'
+
 #else
      *  '../Genesis.3.0/Datafiles/'
 #endif

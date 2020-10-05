@@ -31,6 +31,13 @@ ifeq ($(HOST),pvt.bridges.psc.edu)
     DI = $(SCRATCH)/SAMPLE-ICM/amarel_ism_version/Sheetshelf/Code
 endif
 
+ifeq ($(HOST),sdsc.edu)
+    HOST = comet
+    NI = /home/vhayot/amarel_ism_version/Netcdf
+    NA = /home/vhayot/amarel_ism_version/Netcdf
+    DI = /home/vhayot/amarel_ism_version/Sheetshelf/Code
+endif
+
 #-----------------------------------------------------------------------
 
 ifeq ($(HOST),iguana)
@@ -101,6 +108,36 @@ ifeq ($(HOST),bridges)
   SPALIBS =
 endif
 
+
+ifeq ($(HOST),comet)
+
+  FF        = ifort
+  LL        = ifort
+ #FF        = gfortran
+ #LL        = gfortran
+
+  ifeq ($(DEBUG),1)
+   #DEBUGC = -g
+    DEBUGC = -g -C -traceback
+    DEBUGL = -g
+  else
+    DEBUGC = -O3
+    DEBUGL = -O3
+  endif
+
+  DFLAGS2 = -DCOMET
+
+ # ifort:
+  COMPFLAGS = -r8 -fpe1 -diag-disable 8290 -diag-disable 7713
+  LOADFLAGS = -r8 -fpe1
+
+ # gfortran:
+ #COMPFLAGS = -fdefault-real-8
+ #LOADFLAGS = -fdefault-real-8
+
+  LOADLIBS  = -L$(NA) -lnetcdf
+  SPALIBS =
+endif
 #===========
 
 #-----------------------------------------------------------------------

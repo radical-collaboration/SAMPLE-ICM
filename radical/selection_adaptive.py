@@ -1,13 +1,11 @@
+#!/usr/bin/env python
+
 import pandas as pd
 import numpy as np
 import os
 import glob
 import click
 
-data_dir = '/pylon5/mc3bggp/vhayot/SAMPLE-ICM/wrapper/1597346843'
-ps_csv = 'parameter_space.csv' 
-n_samples = 5
-output = 'adaptive.csv'
 
 def load_fort22(data_dir):
     f22_paths = glob.glob(os.path.join(data_dir, "**", "fort.22"))
@@ -109,7 +107,10 @@ def select_candidates(ps_csv, df, output, n_samples, threshold=0.2):
 
     ps.to_csv(ps_csv)
 
-    selection = ps.sample(n_samples)
+    if len(ps) > n_samples:
+        selection = ps.sample(n_samples)
+    else:
+        selection = ps
     selection.to_csv(output)
 
 
@@ -119,13 +120,13 @@ def select_candidates(ps_csv, df, output, n_samples, threshold=0.2):
 @click.argument('output', type=str, default="selection.csv")
 @click.argument('threshold', type=float, default=0.2)
 def main(ps_csv, n_samples, output, threshold):
-    df = load_fort22(data_dir)
+    df = load_fort22(os.path.dirname(output))
     #df = df[df['time'] == 500]
     df = df.sort_values(by=['crevliq', 'cliffvmax'])
     df = nearest_neighbor_gradient(df)
     select_candidates(ps_csv, df, output, n_samples, threshold)
 
-if __name__='__main__':
+if __name__=='__main__':
     main()
 #arr = numpy_setup(df)
 #arr = np.abs(np.gradient(arr))
