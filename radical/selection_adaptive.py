@@ -35,25 +35,27 @@ def nearest_neighbor_gradient(df):
         nn_cliffvmax_max_m = nn_cliffvmax_max['esl(m)'].to_list()
 
         if is_edge(nn_crevliq_max_m) and  is_edge(nn_crevliq_min_m):
-            row['grad_crevliq'] = row['esl(m)']
+            row['grad_crevliq'] = 0 #row['esl(m)']
         elif is_edge(nn_crevliq_min_m):
-            row['grad_crevliq'] = nn_crevliq_max_m[0] - row['esl(m)']
+            row['grad_crevliq'] = (nn_crevliq_max['esl(m)'] - row['esl(m)']) / (nn_crevliq_max['crevliq'] - row['crevliq'])
         elif is_edge(nn_crevliq_max_m):
-            row['grad_crevliq'] = row['esl(m)'] - nn_crevliq_min_m[0]
+            row['grad_crevliq'] = (row['esl(m)'] - nn_crevliq_min['esl(m)']) / (row['crevliq'] - nn_crevliq_min['crevliq'])
         else:
-            row['grad_crevliq'] = (nn_crevliq_max_m[0]-nn_crevliq_min_m[0])/2
+            row['grad_crevliq'] = (nn_crevliq_max['esl(m)']-nn_crevliq_min['esl(m)'])/ ((nn_crevliq_max['crevliq']-nn_crevliq_min['crevliq'])*0.5)
 
-        row['nn_crevliq'] = (nn_crevliq_min[['crevliq', 'cliffvmax']].values.tolist(), nn_crevliq_max[['crevliq', 'cliffvmax']].values.tolist())
+        row['nn_crevliq'] = (nn_crevliq_min[['crevliq', 'cliffvmax']].values.tolist() ,  nn_crevliq_max[['crevliq', 'cliffvmax']].values.tolist())
 
         if is_edge(nn_cliffvmax_max_m) and  is_edge(nn_cliffvmax_min_m):
-            row['grad_cliffvmax'] = row['esl(m)']
+            row['grad_cliffvmax'] = 0 #row['esl(m)']
         elif is_edge(nn_cliffvmax_min_m):
-            row['grad_cliffvmax'] = nn_cliffvmax_max_m[0] - row['esl(m)']
+            row['grad_cliffvmax'] = (nn_cliffvmax_max['esl(m)'] - row['esl(m)']) / (nn_cliffvmax_max['cliffvmax'] - row['cliffvmax'])
         elif is_edge(nn_cliffvmax_max_m):
-            row['grad_cliffvmax'] = row['esl(m)'] - nn_cliffvmax_min_m[0]
+            row['grad_cliffvmax'] = (row['esl(m)'] - nn_cliffvmax_min['esl(m)']) / (row['cliffvmax'] - nn_cliffvmax_min['cliffvmax'])
         else:
-            row['grad_cliffvmax'] = (nn_cliffvmax_max_m[0]-nn_cliffvmax_min_m[0])/2
-        row['nn_cliffvmax'] = (nn_cliffvmax_min[['crevliq', 'cliffvmax']].values.tolist(), nn_cliffvmax_max[['crevliq', 'cliffvmax']].values.tolist())
+            row['grad_cliffvmax'] = (nn_cliffvmax_max['esl(m)']-nn_cliffvmax_min['esl(m)'])/ ((nn_cliffvmax_max['cliffvmax'] - nn_cliffvmax_min['cliffvmax'])*0.5)
+
+        row['magnitude'] = (row['grad_cliffvmax']**2 + row['grad_crevliq']**2)**0.5
+        row['nn_cliffvmax'] = (nn_cliffvmax_min[['crevliq', 'cliffvmax']].values.tolist() ,  nn_cliffvmax_max[['crevliq', 'cliffvmax']].values.tolist())
 
         return row
 
@@ -63,7 +65,7 @@ def nearest_neighbor_gradient(df):
 
 def select_candidates(ps_csv, df, output, n_samples, threshold=0.2):
 
-    df = df[(df['grad_cliffvmax'] > threshold) | (df['grad_crevliq'] > threshold)]
+    df = df[(df['magnitude'] > threshold)]
 
     ps = pd.read_csv(ps_csv)
 
@@ -79,7 +81,7 @@ def select_candidates(ps_csv, df, output, n_samples, threshold=0.2):
             nn_name = 'nn_{}'.format(param)
             param_range = fix_param_range(row[nn_name])
             if param_range[0] is None and param_range[1] is None:
-                return True
+                return False
                 #return None
             elif param_range[0] is None and row['crevliq'] == param_range[1][0] and row['cliffvmax'] == param_range[1][1]:
                 return True
