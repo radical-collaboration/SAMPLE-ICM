@@ -13,7 +13,7 @@ import pyDOE as doe
 
 
 class Sample:
-    def __init__(self, resource_reqs, model, analysis, param_space, init_params, n_samples, n_iterations, output):
+    def __init__(self, resource_reqs, model, analysis, param_space, init_params, n_samples, n_iterations, convergence, output):
         # Get/Set radical configuration attributes
         if os.environ.get("RADICAL_ENTK_VERBOSE") == None:
             os.environ["RADICAL_ENTK_REPORT"] = "True"
@@ -23,22 +23,55 @@ class Sample:
         self.username = os.environ.get("RMQ_USERNAME")
         self.password = os.environ.get("RMQ_PASSWORD")
 
+        self.param_space = os.path.join(os.getcwd(), 'params.csv')
+        
+        with open(param_space, 'r') as f:
+            param_list = json.load(f)
+
+        # Extract params from json file
+        n_params = len(param_list)
+
+        params = {}
+
+        for i in range(n_params):
+            params[param_list[i]["name"]] = []
+            for j in range(param_list[i]["start"], param_list[i]["stop"] + 1, param_list[i]["step"]):
+                params[param_list[i]["name"]].append(j)
+        
+        # compute all elements in parameter space
+        ps = itertools.product(*params.values)
+
+
+        # write parameter space to file
+        with open(self.param_space, 'w') as f:
+            f.write(",".join(params.keys()))
+            f.write(os.linesep)
+            f.write("\n".join([",".join(x for x in ps)]))
+
         self.resource_dict = json.load(resource_reqs)
         self.model = model
         self.analysis = analysis
         self.param_space = param_space
         self.n_samples = n_samples
         self.n_iterations = n_iterations
+        self.convergence = convergence
         self.output = output
         self.select_file = init_params
 
+        self.cur_dir = os.path.dirname(os.path.abspath(__file__))
+
     # has stop criteria been met?
     # naive stop condition for now
-    def evaluate(self):
-        self.n_iterations -= 1
-        if self.n_iterations < 0:
-            return True
-        return False
+    def evaluate(self, cond, value):
+        if cond == "convergence":
+            with open("%s/selection.csv" % self.cur_dir, "r") as f:
+                if len(f.readlines()) > 0 :
+                    return True
+                else:
+                    return False
+
+        elif cond == "iteration":
+            return value
 
     # generate new set of tasks
     def generate(self, fldr_name):
@@ -62,6 +95,7 @@ class Sample:
         t.pre_exec = ['/bin/cp {0} {1}'.format(self.param_space, ps_file)]
         t.executable = self.analysis
         t.arguments = [ps_file, self.n_samples, select_file]
+        t.download_output_data = [select_file]
 
         tasks.append(t)
 
@@ -80,7 +114,10 @@ class Sample:
         i = 0
         # check if stop criteria has been met
         # otherwise run model with updated set of parameters
-        while not self.evaluate():
+
+        value = i < self.n_iterations if self.n_iterations is not None
+        cond = "convergence" if self.convergence is not None else "iterations"
+        while self.evaluate(cond, value):
 
             # Setting up the pipeline
             # Create a Pipeline object
@@ -98,7 +135,7 @@ class Sample:
             # create selection stage
             s2 = Stage()
 
-            # creat selection task(s)
+            # create selection task(s)
             selec_tasks = self.selection(ps_file, select_file)
             s2.add_tasks(selec_tasks)
 
@@ -126,6 +163,7 @@ class Sample:
             self.select_file = select_file 
 
             i += 1
+            value = i < self.n_iterations if self.n_iterations is not None
 
 
 def main():
@@ -137,7 +175,7 @@ def main():
     parser.add_argument(
         "param_space",
         type=str,
-        help="csv file containing all possible values of each parameter",
+        help="a json value containing the limits of the parameter space",
     )
     parser.add_argument(
         "init_params",
@@ -150,16 +188,18 @@ def main():
     parser.add_argument(
         "n_samples", type=int, help="number of samples to execute at a time."
     )
-    parser.add_argument(
-        "n_iterations", type=int, help="maximum number of sampling iterations."
-    )
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--n_iterations", type=int, help="maximum number of sampling iterations")
+    group.add_argument("--convergence", action=store_true, help="execute until convergence")
+
     parser.add_argument(
         "output", type=str, help="output data location"
     )
     args = parser.parse_args()
 
     s = Sample(resource_reqs=args.resource_reqs, model=args.model, analysis=args.analysis, param_space=args.param_space,
-            init_params=args.init_params, n_samples=args.n_samples, n_iterations=args.n_iterations, output=args.output)
+            init_params=args.init_params, n_samples=args.n_samples, n_iterations=args.n_iterations, convergence=args.convergence, output=args.output)
     s.run()
 
 
